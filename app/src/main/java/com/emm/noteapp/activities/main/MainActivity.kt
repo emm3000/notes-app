@@ -8,14 +8,14 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
 import com.emm.noteapp.navigation.App
-import com.emm.noteapp.ui.theme.JetpackComposeInMacTheme
+import com.emm.noteapp.ui.theme.NoteAppTheme
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            JetpackComposeInMacTheme {
+            NoteAppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
