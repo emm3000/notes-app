@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.emm.myapplication'
+    namespace 'com.emm.noteapp'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.emm.myapplication"
+        applicationId "com.emm.noteapp"
         minSdk 24
         targetSdk 33
         versionCode 1
