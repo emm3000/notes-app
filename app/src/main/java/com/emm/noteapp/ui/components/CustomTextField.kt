@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -20,7 +21,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emm.noteapp.R
-
 
 @Composable
 fun CustomTextField(
@@ -50,10 +50,10 @@ fun CustomTextField(
             onValueChange = onValueChange,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(40.dp)
+                .height(45.dp)
                 .border(
-                    width = 1.dp,
-                    color = Color.DarkGray,
+                    width = 2.dp,
+                    brush = Brush.horizontalGradient(listOf(Color.Green, Color.Blue)),
                     shape = RoundedCornerShape(50)
                 ),
             singleLine = true,
@@ -69,7 +69,7 @@ fun CustomTextField(
                         .padding(horizontal = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
+                    Spacer(modifier = Modifier.width(10.dp))
                     Box(
                         modifier = Modifier
                             .weight(1f)
