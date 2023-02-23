@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Notes App X</string>
+    <string name="lbl_login">Login</string>
 </resources>

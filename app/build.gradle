@@ -66,4 +66,7 @@ dependencies {
 
     implementation "io.insert-koin:koin-androidx-compose:3.4.2"
     implementation "io.insert-koin:koin-android:3.3.3"
+
+    implementation "com.google.accompanist:accompanist-pager:0.29.1-alpha"
+    implementation "com.google.accompanist:accompanist-pager-indicators:0.29.1-alpha"
 }

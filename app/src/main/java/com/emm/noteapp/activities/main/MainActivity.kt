@@ -8,6 +8,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
 import com.emm.noteapp.navigation.App
+import com.emm.noteapp.screens.login.LoginScreen
 import com.emm.noteapp.ui.theme.NoteAppTheme
 
 class MainActivity : ComponentActivity() {

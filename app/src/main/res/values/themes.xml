@@ -2,6 +2,7 @@
 <resources>
 
     <style name="Theme.JetpackComposeInMac" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/purple_700</item>
+        <item name="android:statusBarColor">#1A202C</item>
+        <item name="android:navigationBarColor">#1A202C</item>
     </style>
 </resources>
