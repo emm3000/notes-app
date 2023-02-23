@@ -4,9 +4,7 @@ import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector4D
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,37 +12,21 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.FloatingActionButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import com.emm.noteapp.ui.components.CustomButton
-import com.emm.noteapp.ui.components.CustomTextArea
-import com.emm.noteapp.ui.components.CustomTextField
-import com.emm.noteapp.ui.components.RadioButtonTaskType
+import com.emm.noteapp.screens.home.components.TaskDialog
+import com.emm.noteapp.screens.home.state.HomeState
 import com.emm.noteapp.ui.theme.ChakraBackgroundColor
 import com.emm.noteapp.ui.theme.ChakraColorLightBlue
 import com.emm.noteapp.ui.theme.ChakraColorText
@@ -53,6 +35,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import kotlin.random.Random
 
 enum class TaskType {
@@ -61,65 +44,53 @@ enum class TaskType {
     FUTURE
 }
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(vm: HomeViewModel = koinViewModel()) {
 
+    val state: State<HomeState> = vm.homeState.collectAsState()
+
+    HomeScreen(
+        titleValue = state.value.title,
+        descriptionValue = state.value.description,
+        selectionOption = state.value.type,
+        onSelectionOptionChange = vm::onSelectedTypeTaskChange,
+        onTitleChange = vm::onTitleChange,
+        onDescriptionChange = vm::onDescriptionChange,
+        onAddTaskClick = vm::onSaveTask
+    )
+}
+
+@Composable
+@OptIn(ExperimentalPagerApi::class)
+private fun HomeScreen(
+    titleValue: String,
+    descriptionValue: String,
+    selectionOption: TaskType,
+    onSelectionOptionChange: (TaskType) -> Unit,
+    onTitleChange: (String) -> Unit,
+    onDescriptionChange: (String) -> Unit,
+    onAddTaskClick: () -> Unit
+) {
     val pagerState = rememberPagerState()
 
     var showDialog by remember {
         mutableStateOf(false)
     }
 
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
-
     if (showDialog) {
-        Dialog(
-            onDismissRequest = { showDialog = false },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.8f)
-//                    .fillMaxHeight((screenHeight.value * 0.9f) / 1000)
-                    .heightIn(max = screenHeight * 0.7f)
-                    .clip(RoundedCornerShape(50f))
-                    .background(ChakraBackgroundColor)
-                    .border(
-                        width = 1.dp,
-                        color = ChakraColorLightBlue,
-                        shape = RoundedCornerShape(50f)
-                    )
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(state = rememberScrollState())
-                        .padding(horizontal = 20.dp, vertical = 30.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    CustomTextField(value = "", label = "Title") {
-
-                    }
-                    CustomTextArea(
-                        label = "Description",
-                        value = "Description",
-                        onValueChange = {}
-                    )
-                    RadioButtonTaskType(
-                        selectedOption = TaskType.CURRENT,
-                        onOptionSelected = {}
-                    )
-                    CustomButton(label = "Add Task") {
-
-                    }
-
-                }
-            }
-        }
+        TaskDialog(
+            titleValue,
+            descriptionValue = descriptionValue,
+            selectionOption = selectionOption,
+            onSelectionOptionChange = onSelectionOptionChange,
+            onTitleChange = onTitleChange,
+            onDescriptionChange = onDescriptionChange,
+            onDismissRequest = {
+                showDialog = false
+            },
+            onAddTaskClick = onAddTaskClick
+        )
     }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
