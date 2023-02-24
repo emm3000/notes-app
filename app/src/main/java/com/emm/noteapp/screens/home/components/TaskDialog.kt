@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.emm.noteapp.screens.home.TaskType
+import com.emm.noteapp.screens.home.state.TaskType
 import com.emm.noteapp.ui.components.CustomButton
 import com.emm.noteapp.ui.components.CustomTextArea
 import com.emm.noteapp.ui.components.CustomTextField
@@ -74,7 +74,6 @@ fun TaskDialog(
                     onOptionSelected = onSelectionOptionChange
                 )
                 CustomButton(label = "Add Task", onClick = onAddTaskClick)
-
             }
         }
     }

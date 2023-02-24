@@ -10,6 +10,12 @@ sealed class LoginState {
 
     class LoginFailed(
         val errorMessage: String
-    ) : LoginState()
+    ) : LoginState() {
+        init {
+            with("xx") {
+
+            }
+        }
+    }
 
 }

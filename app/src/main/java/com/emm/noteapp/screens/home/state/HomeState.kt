@@ -1,7 +1,5 @@
 package com.emm.noteapp.screens.home.state
 
-import com.emm.noteapp.screens.home.TaskType
-
 data class HomeState(
     val title: String = "",
     val description: String = "",

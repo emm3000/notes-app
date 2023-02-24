@@ -39,7 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emm.noteapp.R
-import com.emm.noteapp.screens.home.TaskType
+import com.emm.noteapp.screens.home.state.TaskType
 import com.emm.noteapp.ui.theme.ChakraBackgroundColor
 import com.emm.noteapp.ui.theme.ChakraColorGray
 import com.emm.noteapp.ui.theme.ChakraColorLightBlue
