@@ -64,10 +64,14 @@ fun HomeScreen(vm: HomeViewModel = koinViewModel()) {
         titleValue = state.value.title,
         descriptionValue = state.value.description,
         selectionOption = state.value.type,
+        showDialog = state.value.showDialog,
+        labelButton = state.value.buttonText,
+        onShowDialog = vm::showDialog,
         onSelectionOptionChange = vm::onSelectedTypeTaskChange,
         onTitleChange = vm::onTitleChange,
         onDescriptionChange = vm::onDescriptionChange,
-        onAddTaskClick = vm::onSaveTask,
+        onAddTaskClick = vm::onDialogButtonAction,
+        openDialogEditMode = vm::changeEditingMode,
         pastTaskList = vm.pastTaskList,
         currentTaskList = vm.currentTaskList,
         futureTaskList = vm.futureTaskList
@@ -79,18 +83,18 @@ private fun HomeScreen(
     titleValue: String,
     descriptionValue: String,
     selectionOption: TaskType,
+    labelButton: String,
+    showDialog: Boolean,
+    onShowDialog: (Boolean) -> Unit,
     onSelectionOptionChange: (TaskType) -> Unit,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onAddTaskClick: () -> Unit,
+    openDialogEditMode: (Task) -> Unit,
     pastTaskList: List<Task>,
     currentTaskList: List<Task>,
     futureTaskList: List<Task>,
 ) {
-
-    var showDialog by remember {
-        mutableStateOf(false)
-    }
 
     if (showDialog) {
         TaskDialog(
@@ -100,11 +104,9 @@ private fun HomeScreen(
             onSelectionOptionChange = onSelectionOptionChange,
             onTitleChange = onTitleChange,
             onDescriptionChange = onDescriptionChange,
-            onDismissRequest = { showDialog = false },
-            onAddTaskClick = {
-                showDialog = false
-                onAddTaskClick()
-            }
+            onDismissRequest = { onShowDialog(false) },
+            onAddTaskClick = onAddTaskClick,
+            labelButton = labelButton
         )
     }
     Box(
@@ -115,10 +117,11 @@ private fun HomeScreen(
         TaskPager(
             pastTaskList = pastTaskList,
             currentTaskList = currentTaskList,
-            futureTaskList = futureTaskList
+            futureTaskList = futureTaskList,
+            onItemClick = openDialogEditMode
         )
         FloatingActionButton(
-            onClick = { showDialog = true },
+            onClick = { onShowDialog(true) },
             modifier = Modifier
                 .padding(20.dp)
                 .align(Alignment.BottomEnd),
@@ -135,7 +138,8 @@ private fun HomeScreen(
 private fun TaskPager(
     pastTaskList: List<Task>,
     currentTaskList: List<Task>,
-    futureTaskList: List<Task>
+    futureTaskList: List<Task>,
+    onItemClick: (Task) -> Unit
 ) {
     val pagerState = rememberPagerState()
 
@@ -145,9 +149,9 @@ private fun TaskPager(
         CustomTabs(pagerState)
         HorizontalPager(count = TaskType.values().size, state = pagerState) { page: Int ->
             when (page) {
-                0 -> PagerItem(pastTaskList)
-                1 -> PagerItem(currentTaskList)
-                2 -> PagerItem(futureTaskList)
+                0 -> PagerItem(pastTaskList, onItemClick)
+                1 -> PagerItem(currentTaskList, onItemClick)
+                2 -> PagerItem(futureTaskList, onItemClick)
             }
         }
     }
@@ -155,7 +159,8 @@ private fun TaskPager(
 
 @Composable
 private fun PagerItem(
-    tasks: List<Task>
+    tasks: List<Task>,
+    onItemClick: (Task) -> Unit
 ) {
 
     Box(
@@ -166,7 +171,9 @@ private fun PagerItem(
             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 10.dp)
         ) {
             items(tasks) { task ->
-                SimpleItemTask(task)
+                SimpleItemTask(
+                    task = task, onItemClick = onItemClick
+                )
             }
             item {
                 Spacer(modifier = Modifier.height(100.dp))
@@ -177,9 +184,14 @@ private fun PagerItem(
 
 @Composable
 fun SimpleItemTask(
-    task: Task
+    task: Task,
+    onItemClick: (Task) -> Unit
 ) {
     val (isNew, setIsNew) = remember {
+        mutableStateOf(false)
+    }
+
+    val (updated, setUpdated) = remember {
         mutableStateOf(false)
     }
 
@@ -189,12 +201,22 @@ fun SimpleItemTask(
         color.animateTo(if (isNew) Color.Green else ChakraColorGray)
     }
 
+    LaunchedEffect(updated) {
+        color.animateTo(if (updated) Color.Yellow else ChakraColorGray)
+    }
+
     LaunchedEffect(task) {
         if ((System.currentTimeMillis() - task.taskCreateDate) < 2500L) {
             setIsNew(true)
+            delay(3500)
+            setIsNew(false)
+            return@LaunchedEffect
         }
-        delay(3500)
-        setIsNew(false)
+        if ((System.currentTimeMillis() - task.taskUpdateDate) < 2500L) {
+            setUpdated(true)
+            delay(3500)
+            setUpdated(false)
+        }
     }
 
     Row(
@@ -203,12 +225,14 @@ fun SimpleItemTask(
             .height(IntrinsicSize.Min) // Interesante
             .padding(vertical = 4.dp)
             .clip(RoundedCornerShape(50f))
+            .clickable { onItemClick.invoke(task) }
             .border(
                 width = 1.dp,
                 color = color.value,
                 shape = RoundedCornerShape(50f)
             )
             .padding(horizontal = 25.dp, vertical = 10.dp)
+
     ) {
         Column(
             modifier = Modifier

@@ -26,6 +26,7 @@ fun TaskDialog(
     titleValue: String,
     descriptionValue: String,
     selectionOption: TaskType,
+    labelButton: String,
     onSelectionOptionChange: (TaskType) -> Unit,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
@@ -73,7 +74,7 @@ fun TaskDialog(
                     selectedOption = selectionOption,
                     onOptionSelected = onSelectionOptionChange
                 )
-                CustomButton(label = "Add Task", onClick = onAddTaskClick)
+                CustomButton(label = labelButton, onClick = onAddTaskClick)
             }
         }
     }

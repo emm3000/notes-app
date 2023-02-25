@@ -1,5 +1,6 @@
 package com.emm.noteapp.screens.home
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
@@ -12,8 +13,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import java.util.UUID
 
 class HomeViewModel(
@@ -69,7 +70,57 @@ class HomeViewModel(
         )
     }
 
-    fun onSaveTask() {
+    fun showDialog(show: Boolean) {
+        if (show.not()) {
+            _homeState.value = HomeState()
+        } else {
+            _homeState.value = _homeState.value.copy(
+                showDialog = show,
+            )
+        }
+    }
+
+    fun changeEditingMode(task: Task) {
+        _homeState.value = HomeState(
+            title = task.title,
+            id = task.id,
+            description = task.description,
+            type = TaskType from task.type,
+            saveDate = task.taskCreateDate,
+            showDialog = true,
+            isEditing = true,
+            buttonText = "Update Task"
+        )
+    }
+
+    fun onDialogButtonAction() {
+        if (_homeState.value.isEditing) {
+            updateTask()
+        } else {
+            saveTask()
+        }
+    }
+
+    private fun updateTask() {
+        _homeState.value = _homeState.value.copy(showDialog = false)
+        val taskToUpdate = Task(
+            id = _homeState.value.id.orEmpty(),
+            title = _homeState.value.title,
+            description = _homeState.value.title,
+            type = _homeState.value.type.ordinal,
+            taskCreateDate = _homeState.value.saveDate,
+            taskUpdateDate = System.currentTimeMillis(),
+        )
+
+        repository.updateTask(taskToUpdate).onEach {
+            Log.e("aea", "$it")
+        }.onCompletion {
+            _homeState.value = HomeState()
+        }.launchIn(viewModelScope)
+    }
+
+    private fun saveTask() {
+        _homeState.value = _homeState.value.copy(showDialog = false)
         val task = Task(
             id = UUID.randomUUID().toString(),
             title = _homeState.value.title,
@@ -79,10 +130,13 @@ class HomeViewModel(
             taskUpdateDate = System.currentTimeMillis()
         )
 
-        viewModelScope.launch {
-            repository.insertTask(task)
-            _homeState.value = HomeState()
-        }
+        repository.insertTask(task)
+            .onEach { Log.e("aea", "$it") }
+            .onCompletion {
+                _homeState.value = HomeState()
+            }
+            .launchIn(viewModelScope)
+
     }
 
 }

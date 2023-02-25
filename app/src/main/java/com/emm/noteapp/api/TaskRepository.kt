@@ -5,8 +5,10 @@ import kotlinx.coroutines.flow.Flow
 
 interface TaskRepository {
 
-    suspend fun insertTask(task: Task)
+    fun insertTask(task: Task): Flow<String?>
 
     fun loadTaskByType(type: Int): Flow<Pair<Int, List<Task>>>
+
+    fun updateTask(task: Task): Flow<Int>
 
 }

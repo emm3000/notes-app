@@ -4,8 +4,9 @@ import com.emm.noteapp.api.TaskRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
@@ -18,15 +19,21 @@ class TaskRepositoryImpl(
     private val taskDao: TaskDao
 ) : TaskRepository {
 
-    override suspend fun insertTask(task: Task) = withContext(Dispatchers.IO) {
+    override fun insertTask(task: Task): Flow<String> = flow {
         taskDao.insertTask(task.toEntity())
-    }
+        emit(task.id)
+    }.flowOn(Dispatchers.IO)
 
     override fun loadTaskByType(type: Int): Flow<Pair<Int, List<Task>>> {
         return taskDao.loadTaskByType(type)
             .distinctUntilChanged()
             .map { Pair(type, it.toDomain()) }
     }
+
+    override fun updateTask(task: Task): Flow<Int> = flow {
+        val rowsModified = taskDao.updateTask(task.toEntity())
+        emit(rowsModified)
+    }.flowOn(Dispatchers.IO)
 }
 
 private fun Task.toEntity(): TaskEntity {
